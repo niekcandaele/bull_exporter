@@ -10,6 +10,7 @@ export interface Options {
   port: number;
   bindAddress: string;
   autoDiscover: boolean;
+  redisTlsCa?: string,
   _: string[];
 }
 
@@ -23,6 +24,10 @@ export function getOptionsFromArgs(...args: string[]): Options {
         describe: 'A redis connection url',
         default: 'redis://127.0.0.1:6379',
         demandOption: true,
+      },
+      redisTlsCa: {
+        describe: 'Redis tls ca file path',
+        type: 'string',
       },
       prefix: {
         alias: 'p',

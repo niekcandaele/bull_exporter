@@ -15,6 +15,7 @@ export async function printOnce(opts: Options): Promise<void> {
     redis: opts.url,
     prefix: opts.prefix,
     autoDiscover: opts.autoDiscover,
+    redisTlsCa: opts.redisTlsCa,
   });
   if (opts.autoDiscover) {
     await collector.discoverAll();
