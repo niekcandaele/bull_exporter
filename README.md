@@ -52,13 +52,14 @@ this can also be triggered manually from the `/discover_queues` endpoint
 
 ### Environment variables for default docker image
 
-| variable              | default                  | description                                     |
-|-----------------------|--------------------------|-------------------------------------------------|
-| EXPORTER_REDIS_URL    | redis://localhost:6379/0 | Redis uri to connect                            |
-| EXPORTER_PREFIX       | bull                     | prefix for queues                               |
-| EXPORTER_STAT_PREFIX  | bull_queue_              | prefix for exported metrics                     |
-| EXPORTER_QUEUES       | -                        | a space separated list of queues to check       |
-| EXPORTER_AUTODISCOVER | -                        | set to '0' or 'false' to disable queue discovery|
+| variable              | default                  | description                                             |
+|-----------------------|--------------------------|---------------------------------------------------------|
+| EXPORTER_REDIS_URL    | redis://localhost:6379/0 | Redis uri to connect                                    |
+| EXPORTER_PREFIX       | bull                     | prefix for queues                                       |
+| EXPORTER_STAT_PREFIX  | bull_queue_              | prefix for exported metrics                             |
+| EXPORTER_QUEUES       | -                        | a space separated list of queues to check               |
+| EXPORTER_AUTODISCOVER | -                        | set to '0' or 'false' to disable queue discovery        |
+| REDIS_TLS_CA_FILE     | -                        | Provide a custom CA certificate for connecting to Redis |
 
 
 ### Example deployment
