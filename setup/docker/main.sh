@@ -27,4 +27,4 @@ fi
 # shellcheck disable=2206
 flags+=($queues)
 
-echo exec node dist/src/index.js "${flags[@]}"
+exec node dist/src/index.js "${flags[@]}"
