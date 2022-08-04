@@ -3,6 +3,7 @@ import * as Logger from 'bunyan';
 import { EventEmitter } from 'events';
 import IoRedis from 'ioredis';
 import { register as globalRegister, Registry } from 'prom-client';
+import * as fs from 'fs';
 
 import { logger as globalLogger } from './logger';
 import { getJobCompleteStats, getStats, makeGuages, QueueGauges } from './queueGauges';
@@ -12,6 +13,7 @@ export interface MetricCollectorOptions extends Omit<bull.QueueOptions, 'redis'>
   redis: string;
   autoDiscover: boolean;
   logger: Logger;
+  redisTlsCa?: string,
 }
 
 export interface QueueData<T = unknown> {
@@ -26,6 +28,7 @@ export class MetricCollector {
 
   private readonly defaultRedisClient: IoRedis.Redis;
   private readonly redisUri: string;
+  private readonly redisTlsCa: string | undefined;
   private readonly bullOpts: Omit<bull.QueueOptions, 'redis'>;
   private readonly queuesByName: Map<string, QueueData<unknown>> = new Map();
 
@@ -42,9 +45,9 @@ export class MetricCollector {
     opts: MetricCollectorOptions,
     registers: Registry[] = [globalRegister],
   ) {
-    const { logger, autoDiscover, redis, metricPrefix, ...bullOpts } = opts;
+    const { logger, autoDiscover, redis, metricPrefix, redisTlsCa, ...bullOpts } = opts;
     this.redisUri = redis;
-    this.defaultRedisClient = new IoRedis(this.redisUri);
+    this.defaultRedisClient = new IoRedis(this.redisUri, this.getRedisConnectionInfo());
     this.defaultRedisClient.setMaxListeners(32);
     this.bullOpts = bullOpts;
     this.logger = logger || globalLogger;
@@ -52,11 +55,23 @@ export class MetricCollector {
     this.guages = makeGuages(metricPrefix, registers);
   }
 
+  private getRedisConnectionInfo(): IoRedis.RedisOptions | undefined {
+    if (this.redisTlsCa) {
+      return {
+        tls: {
+          ca: fs.readFileSync(this.redisTlsCa),
+        }
+      }
+    } else {
+      return undefined
+    }
+  }
+
   private createClient(_type: 'client' | 'subscriber' | 'bclient', redisOpts?: IoRedis.RedisOptions): IoRedis.Redis {
     if (_type === 'client') {
       return this.defaultRedisClient!;
     }
-    return new IoRedis(this.redisUri, redisOpts);
+    return new IoRedis(this.redisUri, { ...this.getRedisConnectionInfo(), ...redisOpts });
   }
 
   private addToQueueSet(names: string[]): void {
